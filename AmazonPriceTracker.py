@@ -4,19 +4,6 @@ import csv
 import datetime as dt
 import sqlite3
 
-'''
-old asins
-B07B19L9NK
-B00WSIAE4Y
-B07B199LGK
-B01C2QISTO
-B01C2QISBC
-B01MY6G6AK
-B07X78SMWP
-B07MWDKNGN
-B0756GDPXG
-B0779B9VRP
-'''
 
 # create a folder named db (if it doesn't already exist already and connect to/create database
 conn = sqlite3.connect('./db/amazon_product_info.db')
@@ -65,11 +52,10 @@ for asin in asins:
     price = float(price)
 
     title = r.html.find('#productTitle')[0].text.strip()
-    asin = asin
     date = dt.datetime.today()
     c.execute('''INSERT INTO prices VALUES(?,?,?,?)''',
               (date, asin, price, title))
-    print(f'Added data for {asin}, {price}')
+    print(f'Added data for {title} with asin: {asin}, price: {price}')
 
 # finalize changes into the database
 conn.commit()
