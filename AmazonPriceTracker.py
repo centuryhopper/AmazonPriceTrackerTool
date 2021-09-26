@@ -8,7 +8,6 @@ from sqlite3 import OperationalError
 # dontexecutethisline.execute('''DROP TABLE IF EXISTS prices''')
 
 #region startPriceTracking
-
 def startPriceTracking():
     # create a folder named db (if it doesn't already exist already and connect to/create database
     conn = sqlite3.connect('./db/amazon_product_info.db')
