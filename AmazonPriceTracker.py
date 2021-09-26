@@ -3,6 +3,7 @@ from colorama import Fore, Back, Style
 import csv
 import datetime as dt
 import sqlite3
+from sqlite3 import OperationalError
 
 # dontexecutethisline.execute('''DROP TABLE IF EXISTS prices''')
 
@@ -13,10 +14,12 @@ def startPriceTracking():
     conn = sqlite3.connect('./db/amazon_product_info.db')
     c = conn.cursor()
 
-    # region DO NOT UNCOMMENT CONTENTS WITHIN THIS REGION IF YOU HAVE ALREADY CREATED THIS TABLE
-    # Again, only create the table once, then comment out or delete the line
-    # c.execute('''CREATE TABLE prices(date DATE, asin TEXT, price FLOAT, title TEXT)''')
-    # endregion
+    try:
+        c.execute('''SELECT * FROM prices''')
+    except OperationalError as o:
+        print(o)
+        print('therefore creating one now')
+        c.execute('''CREATE TABLE prices(date DATE, asin TEXT, price FLOAT, title TEXT)''')
 
 
     # start session and create lists
@@ -43,10 +46,12 @@ def startPriceTracking():
         try:
             price = r.html.find('#price_inside_buybox')[0].text.replace(
                 '$', '').replace(',', '').strip()
+            # print(f'PRICE: {price}')
         except Exception as e:
             try:
                 price = r.html.find('#priceblock_ourprice')[0].text.replace(
                     '$', '').replace(',', '').strip()
+                # print(f'PRICE (nested): {price}')
             except Exception as e:
                 print(e)
                 break
