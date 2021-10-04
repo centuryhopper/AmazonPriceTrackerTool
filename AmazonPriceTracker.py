@@ -3,6 +3,7 @@ from colorama import Fore, Back, Style
 import csv
 import datetime as dt
 import sqlite3
+import random as rand
 from sqlite3 import OperationalError
 
 # dontexecutethisline.execute('''DROP TABLE IF EXISTS prices''')
@@ -38,7 +39,7 @@ def startPriceTracking():
     for asin in asins:
         r = s.get(f'https://www.amazon.com/dp/{asin}')
         # print(asins)
-        r.html.render(sleep=1)
+        r.html.render(sleep=rand.uniform(1,2))
         # print(Fore.RED, end='')
         # print(Back.YELLOW, asins)
         # print(Style.RESET_ALL, end='')
@@ -61,10 +62,12 @@ def startPriceTracking():
         c.execute('''INSERT INTO prices VALUES(?,?,?,?)''',
                 (date, asin, price, title))
         print(f'Added data for {title} with asin: {asin}, price: {price}')
+        r.close()
 
     # finalize changes into the database
     conn.commit()
     print('Committed new entries to database')
+    s.close()
 #endregion
 
 
