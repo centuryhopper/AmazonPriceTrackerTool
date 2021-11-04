@@ -19,6 +19,7 @@ def getUrl(searchTerm):
 
 # endregion
 
+
 # region extractRecord
 def extractRecord(itemToParse) -> list:
     '''Extract the desired information from a single record to parse'''
@@ -72,11 +73,12 @@ def isCSVEmpty(path):
 # endregion
 
 # region appendFile
-def appendToFile(records=[]):
+def appendToFile(records=[], relativeFilePath=True):
     pass
-    with open(csvFilePath, 'a', newline='', encoding='utf-8') as f:
+    filePath = './files/AmazonItemRecords.csv' if relativeFilePath else csvFilePath
+    with open(filePath, 'a', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
-        if isCSVEmpty(csvFilePath):
+        if isCSVEmpty(filePath):
             print('this is a brand new csv file, so adding headers to it now')
             writer.writerow(['Date', 'Title', 'Price', 'Item_URL'])
         writer.writerows(records)
