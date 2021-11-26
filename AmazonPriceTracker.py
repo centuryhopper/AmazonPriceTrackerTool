@@ -10,6 +10,8 @@ from sqlite3 import OperationalError
 from secrets import *
 
 # region getUrl
+
+
 def getUrl(searchTerm):
     '''Generate a url from the search term param'''
     pass
@@ -43,6 +45,8 @@ def extractRecord(itemToParse) -> list:
 # endregion
 
 # region collectData
+
+
 def collectData(searchTerm=''):
     '''get date, price, title, and url to that item'''
     pass
@@ -54,7 +58,8 @@ def collectData(searchTerm=''):
     res = soup.find_all('div', {'data-component-type': 's-search-result'})
     # just get the results on the first page
     # might get the results from succeeding pages down the road, if needed
-    records = [extractRecord(record) for record in res if extractRecord(record)]
+    records = [extractRecord(record)
+               for record in res if extractRecord(record)]
     # print(records)
     driver.close()
     appendToFile(records)
@@ -62,6 +67,8 @@ def collectData(searchTerm=''):
 # endregion
 
 # region isCSVEmpty
+
+
 def isCSVEmpty(path):
     with open(path) as f:
         reader = csv.reader(f)
@@ -73,6 +80,8 @@ def isCSVEmpty(path):
 # endregion
 
 # region appendFile
+
+
 def appendToFile(records=[], relativeFilePath=True):
     pass
     filePath = './files/AmazonItemRecords.csv' if relativeFilePath else csvFilePath
@@ -91,13 +100,11 @@ if __name__ == '__main__':
         'Plugable USB 3.0 and USB-C Universal Laptop Docking Station for Windows and Mac (Dual Video HDMI, Gigabit Ethernet, Audio, 6 USB Ports)',
         'Logitech K780 Multi-Device Wireless Keyboard for Computer, Phone and Tablet – FLOW Cross-Computer Control Compatible – Speckles',
         'Sceptre E248W-19203R 24" Ultra Thin 75Hz 1080p LED Monitor 2x HDMI VGA Build-in Speakers, Metallic Black 2018',
+        'Sceptre New 22 Inch FHD LED Monitor 75Hz 2X HDMI VGA Build-in Speakers, Machine Black (E22 Series)',
     ]
 
     for searchQuery in searchQueries:
         collectData(searchQuery)
-
-
-
 
 
 
