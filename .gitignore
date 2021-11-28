@@ -1,2 +1,7 @@
 db/
+CSVFiles/
 secrets.py
+Deprecated/
+files/
+AmazonPriceTracker.py
+StoredSQLStatements.txt

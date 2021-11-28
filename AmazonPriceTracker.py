@@ -21,7 +21,6 @@ def getUrl(searchTerm):
 
 # endregion
 
-
 # region extractRecord
 def extractRecord(itemToParse) -> list:
     '''Extract the desired information from a single record to parse'''
