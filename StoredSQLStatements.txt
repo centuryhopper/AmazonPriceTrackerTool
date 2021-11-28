@@ -1,4 +1,0 @@
-SELECT min(price), max(price), title
-from prices
-GROUP BY title
--- INSERT INTO prices VALUES('a','b',3,'c')

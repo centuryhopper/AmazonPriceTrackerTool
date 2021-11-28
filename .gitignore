@@ -3,5 +3,6 @@ CSVFiles/
 secrets.py
 Deprecated/
 pythonfiles/
-AmazonPriceTracker.py
+textfiles/
+virtenv/
 StoredSQLStatements.txt
