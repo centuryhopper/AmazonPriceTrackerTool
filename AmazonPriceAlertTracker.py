@@ -55,8 +55,7 @@ def processAmazonLinks(products):
 
 if __name__ == '__main__':
     products = [
-        ("https://www.amazon.com/gp/product/B07D75MVX9/ref=ox_sc_act_title_1?smid=A1KWJVS57NX03I&psc=1", 170),
-        ("https://www.amazon.com/SAMSUNG-50-Inch-Class-QLED-Built/dp/B08VW4GBVJ?ref_=Oct_DLandingS_D_3324dfc1_66&smid=ATVPDKIKX0DER&th=1", 628),
+        ("https://www.amazon.com/QNAP-TS-230-Cortex-A53-Quad-core-Processor/dp/B083W6328Q/ref=sr_1_1?keywords=qnap%2Bts230&qid=1638930694&sr=8-1&th=1", 180),
         ]
     processAmazonLinks(products)
     pass
