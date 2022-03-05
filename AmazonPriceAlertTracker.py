@@ -12,11 +12,11 @@ import os
 
 
 HEADERS = ({'User-Agent':
-            'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36',
             'Accept-Language': 'en-US, en;q=0.5'})
 
 
-#region getProductInfo(url)
+
 def getProductInfo(url):
     page = requests.get(url, headers=HEADERS)
     soup = BeautifulSoup(page.content, features="html.parser")
@@ -39,11 +39,10 @@ def getProductInfo(url):
     except:
         return None, None, None
     return title, price, available
-#endregion
 
-#region processAmazonLinks(urls)
+
 def processAmazonLinks(products):
-#region 
+#region
     def appendToCSV(df,filePath):
         # if file does not exist write header
         if not os.path.isfile(filePath):
@@ -81,40 +80,38 @@ def processAmazonLinks(products):
     #     Secrets.sendEmail('', '', Secrets.EmailCredentials(sender=Secrets.senderEmail, recipients=Secrets.receiverEmails,password=Secrets.senderEmailPassword), 'Price Drop from Amazon!', message)
 
 
-#endregion
-
 if __name__ == '__main__':
     products = [
     ("qnap_network_drive","https://www.amazon.com/QNAP-TS-230-Cortex-A53-Quad-core-Processor/dp/B083W6328Q/ref=sr_1_1?keywords=qnap%2Bts230&qid=1638930694&sr=8-1&th=1", 200),
     ("portable_monitor","https://www.amazon.com/gp/product/B07RGPCQG1/ref=as_li_qf_asin_il_tl?ie=UTF8&tag=kallehallde0c-20&creative=9325&linkCode=as2&creativeASIN=B07RGPCQG1&linkId=1f1bbc900d93e4ff3d6ee9e5d16c6092", 220),
     ]
-    # processAmazonLinks(products)
+    processAmazonLinks(products)
 
     #? Note that the csv files must have as many different dates as possible. If all the dates are the same, then there wont be any predictions
 
-    for title,_,_ in products:
-        filePath = f'C:\\Users\\Leo Zhang\\Documents\GitHub\\PythonAmazonPriceTracker\\CSVFiles\\{title}.csv'
-        if not os.path.isfile(filePath): continue
-        df = pd.read_csv(f'./CSVFiles/{title}.csv')
-        df['Year'] = df['datetime'].apply(lambda x: str(x)[:4])
-        df['Month'] = df['datetime'].apply(lambda x: str(x)[4:6])
-        df['Day'] = df['datetime'].apply(lambda x: str(x)[6:8])
-        df['ds'] = pd.DatetimeIndex(df['Year']+'-'+df['Month']+'-'+df['Day'])
-        # axis = 1 for columns, 0 for rows
-        df.drop(['datetime','Year','Month','Day', 'title'], axis=1, inplace=True)
-        df.rename(columns={'price':'y'}, inplace=True)
-        df.reset_index(drop=True,inplace=True)
-        print(df)
-        print(df.dtypes)
+    # for title,_,_ in products:
+    #     filePath = f'C:\\Users\\Leo Zhang\\Documents\GitHub\\PythonAmazonPriceTracker\\CSVFiles\\{title}.csv'
+    #     if not os.path.isfile(filePath): continue
+    #     df = pd.read_csv(f'./CSVFiles/{title}.csv')
+    #     df['Year'] = df['datetime'].apply(lambda x: str(x)[:4])
+    #     df['Month'] = df['datetime'].apply(lambda x: str(x)[4:6])
+    #     df['Day'] = df['datetime'].apply(lambda x: str(x)[6:8])
+    #     df['ds'] = pd.DatetimeIndex(df['Year']+'-'+df['Month']+'-'+df['Day'])
+    #     # axis = 1 for columns, 0 for rows
+    #     df.drop(['datetime','Year','Month','Day', 'title'], axis=1, inplace=True)
+    #     df.rename(columns={'price':'y'}, inplace=True)
+    #     df.reset_index(drop=True,inplace=True)
+        # print(df)
+        # print(df.dtypes)
 
-        m = Prophet(weekly_seasonality=True)
-        model = m.fit(df)
-        # forecast 14 days into the future
-        future = m.make_future_dataframe(periods=14)
-        forecast_df = m.predict(future)
-        print(forecast_df.head(10))
-        print(forecast_df.tail(10))
-        print()
+        # m = Prophet(weekly_seasonality=True)
+        # model = m.fit(df)
+        # # forecast 14 days into the future
+        # future = m.make_future_dataframe(periods=14)
+        # forecast_df = m.predict(future)
+        # print(forecast_df.head(10))
+        # print(forecast_df.tail(10))
+        # print()
 
 #region test code
     # df = pd.read_csv('./CSVFiles/dummy.csv')

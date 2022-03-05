@@ -5,3 +5,4 @@ pythonfiles/
 textfiles/
 virtenv/
 StoredSQLStatements.txt
+__pycache__
