@@ -6,3 +6,4 @@ pythonfiles/
 textfiles/
 virtenv/
 StoredSQLStatements.txt
+.DS_Store
