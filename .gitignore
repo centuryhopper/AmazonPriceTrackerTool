@@ -1,5 +1,4 @@
 db/
-CSVFiles/
 secrets.py
 Deprecated/
 pythonfiles/
@@ -7,3 +6,4 @@ textfiles/
 virtenv/
 StoredSQLStatements.txt
 .DS_Store
+__pycache__
