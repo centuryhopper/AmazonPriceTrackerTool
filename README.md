@@ -60,6 +60,9 @@ Secrets.sendEmail('', '', Secrets.EmailCredentials(sender=Secrets.senderEmail, r
 The first two arguments are empty strings because there's no attachments for this script. We are just scraping data from the web, storing that data in a string called "message" and then sending that out via email
 # endregion
 
+For the scrapy tool,
+cd into amazon_price_tracker/ and type: scrapy genspider AmazonProduct amazon.com
+
 ```
 
 ## The send emails function only accepts gmails according to how I programmed it. You can customize it to use other types of emails if you'd like.

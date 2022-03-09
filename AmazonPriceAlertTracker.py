@@ -2,10 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 import unicodedata
 import pandas as pd
-# from prophet import Prophet
 from secrets import Secrets
 from time import strftime
 from collections import defaultdict
+# from prophet import Prophet
 # from prophet.plot import plot_plotly, plot_components_plotly
 # import matplotlib.pyplot as plt
 import os
@@ -51,7 +51,6 @@ def getProductInfo(url):
         price = price.replace(',', '.').replace('$', '')
         price = float(price)
     except:
-
         return None, None, None
     return title, price, available
 
@@ -100,12 +99,13 @@ def processAmazonLinks(products):
 
 
 if __name__ == '__main__':
-
     # https://www.amazon.com/dp/B083W6328Q
+    # https://www.amazon.com/dp/B07RGPCQG1
     # "https://www.amazon.com/QNAP-TS-230-Cortex-A53-Quad-core-Processor/dp/B083W6328Q/ref=sr_1_1?keywords=qnap%2Bts230&qid=1638930694&sr=8-1&th=1"
+
     products = [
     ("qnap_network_drive","https://www.amazon.com/dp/B083W6328Q", 200),
-    ("portable_monitor","https://www.amazon.com/gp/product/B07RGPCQG1/ref=as_li_qf_asin_il_tl?ie=UTF8&tag=kallehallde0c-20&creative=9325&linkCode=as2&creativeASIN=B07RGPCQG1&linkId=1f1bbc900d93e4ff3d6ee9e5d16c6092", 220),
+    ("portable_monitor","https://www.amazon.com/dp/B07RGPCQG1", 220),
     ]
     processAmazonLinks(products)
 
