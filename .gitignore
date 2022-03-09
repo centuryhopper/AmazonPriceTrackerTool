@@ -7,3 +7,4 @@ virtenv/
 StoredSQLStatements.txt
 .DS_Store
 __pycache__
+CSVFiles/

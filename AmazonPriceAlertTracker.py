@@ -2,24 +2,38 @@ import requests
 from bs4 import BeautifulSoup
 import unicodedata
 import pandas as pd
-from prophet import Prophet
+# from prophet import Prophet
 from secrets import Secrets
 from time import strftime
 from collections import defaultdict
 # from prophet.plot import plot_plotly, plot_components_plotly
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import os
+import platform
 
 
+# Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.109 Safari/537.36
 HEADERS = ({'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36',
             'Accept-Language': 'en-US, en;q=0.5'})
 
+if platform.system() == 'Darwin':
+    HEADERS = {
+            'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.109 Safari/537.36',
+        }
 
+proxies = {
+  "http": None,
+  "https": None,
+}
+
+soup = None
 
 def getProductInfo(url):
-    page = requests.get(url, headers=HEADERS)
-    soup = BeautifulSoup(page.content, features="html.parser")
+    global soup
+    page = requests.get(url, headers=HEADERS, proxies=proxies)
+    print(page.status_code)
+    soup = BeautifulSoup(page.content, features="lxml")
     try:
         title = soup.find('span',{'id':'productTitle'}).get_text().strip()
         price_str = soup.find('div',{'id':'corePrice_feature_div'})
@@ -37,6 +51,7 @@ def getProductInfo(url):
         price = price.replace(',', '.').replace('$', '')
         price = float(price)
     except:
+
         return None, None, None
     return title, price, available
 
@@ -58,13 +73,17 @@ def processAmazonLinks(products):
     for product_title, product_url, priceLimit in products:
         title, price, available = getProductInfo(product_url)
         fileName = f'{product_title}.csv'
-        filePath = f'C:\\Users\\Leo Zhang\\Documents\GitHub\\PythonAmazonPriceTracker\\CSVFiles\\{fileName}'
+        filePath = Secrets.WINDOWS_CSV_PATH + fileName
+        if platform.system() == 'Darwin':
+            filePath = Secrets.MAC_CSV_PATH + fileName
+        print(title, price, available)
         if title is not None and price < priceLimit and available:
             d['title'].append(title)
             d['price'].append(price)
             d['datetime'].append(curDateTime)
             products_below_limit.append((product_url, title, price, priceLimit))
             df = pd.DataFrame(d)
+            print(df)
             appendToCSV(df, filePath)
             d.clear()
 
@@ -81,12 +100,16 @@ def processAmazonLinks(products):
 
 
 if __name__ == '__main__':
+
+    # https://www.amazon.com/dp/B083W6328Q
+    # "https://www.amazon.com/QNAP-TS-230-Cortex-A53-Quad-core-Processor/dp/B083W6328Q/ref=sr_1_1?keywords=qnap%2Bts230&qid=1638930694&sr=8-1&th=1"
     products = [
-    ("qnap_network_drive","https://www.amazon.com/QNAP-TS-230-Cortex-A53-Quad-core-Processor/dp/B083W6328Q/ref=sr_1_1?keywords=qnap%2Bts230&qid=1638930694&sr=8-1&th=1", 200),
+    ("qnap_network_drive","https://www.amazon.com/dp/B083W6328Q", 200),
     ("portable_monitor","https://www.amazon.com/gp/product/B07RGPCQG1/ref=as_li_qf_asin_il_tl?ie=UTF8&tag=kallehallde0c-20&creative=9325&linkCode=as2&creativeASIN=B07RGPCQG1&linkId=1f1bbc900d93e4ff3d6ee9e5d16c6092", 220),
     ]
     processAmazonLinks(products)
 
+    # Time series
     #? Note that the csv files must have as many different dates as possible. If all the dates are the same, then there wont be any predictions
 
     # for title,_,_ in products:
