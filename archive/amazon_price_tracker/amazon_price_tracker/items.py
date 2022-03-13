@@ -14,3 +14,6 @@ class AmazonPriceTrackerItem(scrapy.Item):
     price = scrapy.Field()
     date_time = scrapy.Field()
 
+    # category is differentiated by the product's asin number
+    category = scrapy.Field()
+

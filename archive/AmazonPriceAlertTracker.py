@@ -10,17 +10,15 @@ from collections import defaultdict
 # import matplotlib.pyplot as plt
 import os
 import platform
+from fake_useragent import UserAgent
+import random
+
+ua = UserAgent()
 
 
 # Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.109 Safari/537.36
-HEADERS = ({'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36',
-            'Accept-Language': 'en-US, en;q=0.5'})
+HEADERS = {'User-Agent': ua.random,}
 
-if platform.system() == 'Darwin':
-    HEADERS = {
-            'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.109 Safari/537.36',
-        }
 
 proxies = {
   "http": None,
@@ -31,9 +29,9 @@ soup = None
 
 def getProductInfo(url):
     global soup
-    page = requests.get(url, headers=HEADERS, proxies=proxies)
+    page = requests.get(url, headers=HEADERS, proxies=proxies, timeout=random.uniform(0.1, 3))
     print(page.status_code)
-    soup = BeautifulSoup(page.content, features="lxml")
+    soup = BeautifulSoup(page.content, "lxml")
     try:
         title = soup.find('span',{'id':'productTitle'}).get_text().strip()
         price_str = soup.find('div',{'id':'corePrice_feature_div'})

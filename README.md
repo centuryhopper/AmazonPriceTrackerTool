@@ -61,7 +61,13 @@ The first two arguments are empty strings because there's no attachments for thi
 # endregion
 
 For the scrapy tool,
-cd into amazon_price_tracker/ and type: scrapy genspider AmazonProduct amazon.com
+cd into amazon_price_tracker/ and type: scrapy genspider AmazonProduct amazon.com (for creation of a new spider)
+
+scrapy crawl AmazonProduct (just to display the information in the terminal)
+scrapy crawl AmazonProduct -o results.csv for appending to the file
+scrapy crawl AmazonProduct -O results.csv for overwriting any existing information in the file and adding current results to it
+
+
 
 ```
 
