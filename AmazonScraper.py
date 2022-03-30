@@ -4,7 +4,9 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from secrets import Secrets
 import os
+import time
 
 #Set working directory to project file
 path = os.path.dirname(__file__)
@@ -42,15 +44,15 @@ def extract(item):
 
     return result
 
-#Main program function where the the search and extract functions are used to apply the extraction model to the first 6 pages of amazon.
-#The data extracted is formatted and added to a csv file named after the desired product.
-def main(item):
+# Main program function where the the search and extract functions are used to apply the extraction model to the first 6 pages of amazon.
+# The data extracted is formatted and added to a csv file named after the desired product.
+def process_query(item):
     chrome_options = Options()
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
     chrome_options.add_experimental_option('useAutomationExtension', False)
     chrome_options.add_argument('--disable-blink-features=AutomationControlled')
     chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options = chrome_options)
     records = []
     url = search(item[0])
     for page in range(1,7):
@@ -73,6 +75,21 @@ def main(item):
         writer.writerows(records)
 
 
+def main():
+    lastDate = ''
+    if not os.path.isfile(f'{Secrets.TIMESTAMP_FILEPATH}time_stamp.txt'):
+        with open(f'{Secrets.TIMESTAMP_FILEPATH}time_stamp.txt', 'w') as f:
+            f.write('')
+    with open(f'{Secrets.TIMESTAMP_FILEPATH}time_stamp.txt', 'r') as f:
+        lastDate = f.read()
+        if lastDate == time.strftime("%Y-%m-%d"):
+            print('already ran this')
+            return
+    with open(f'{Secrets.TIMESTAMP_FILEPATH}time_stamp.txt', 'w') as f:
+        f.write(time.strftime("%Y-%m-%d"))
+    for search_term in search_terms:
+        process_query(search_term)
+
 # search_term = input('What would you like to search Amazon for? ')
 # main(search_term)
 
@@ -82,6 +99,5 @@ search_terms = [
 ]
 
 if __name__ == '__main__':
-    for search_term in search_terms:
-        main(search_term)
+    main()
 
