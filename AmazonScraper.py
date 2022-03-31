@@ -8,12 +8,12 @@ from secrets import Secrets
 import os
 import time
 
-#Set working directory to project file
+# Set working directory to project file
 path = os.path.dirname(__file__)
 os.chdir(path)
 
 
-#Define the search function that will locate the desired item
+# Define the search function that will locate the desired item
 def search(s):
     general = 'https://www.amazon.com/s?k={}&ref=nb_sb_noss_2'
     new_search = s.replace(' ', '+')
@@ -22,7 +22,7 @@ def search(s):
     return new
 
 
-#Create an extraction model that will retrieve the desired product information
+# Create an extraction model that will retrieve the desired product information
 def extract(item):
     atag = item.h2.a
     description = atag.text.strip()
@@ -40,7 +40,7 @@ def extract(item):
     except:
         rating = ''
         num_review = 0
-    result = (description,price,rating,num_review,url)
+    result = (time.strftime("%Y-%m-%d"), description,price,rating,num_review,url)
 
     return result
 
@@ -71,7 +71,7 @@ def process_query(item):
     with open(filePathComplete, 'a', newline= '', encoding = 'utf-8') as file:
         writer = csv.writer(file)
         if os.stat(filePathComplete).st_size == 0:
-            writer.writerow(['description','Price','Rating','Review Count', 'URL'])
+            writer.writerow(['Date','Description','Price','Rating','Review Count', 'URL'])
         writer.writerows(records)
 
 
