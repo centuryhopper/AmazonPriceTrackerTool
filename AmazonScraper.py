@@ -5,8 +5,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from secrets import Secrets
+import pandas as pd
 import os
 import time
+import io
 
 # Set working directory to project file
 path = os.path.dirname(__file__)
@@ -48,8 +50,8 @@ def extract(item):
 # The data extracted is formatted and added to a csv file named after the desired product.
 def process_query(item):
     chrome_options = Options()
-    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    chrome_options.add_experimental_option('useAutomationExtension', False)
+    # chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    # chrome_options.add_experimental_option('useAutomationExtension', False)
     chrome_options.add_argument('--disable-blink-features=AutomationControlled')
     chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options = chrome_options)
@@ -64,15 +66,24 @@ def process_query(item):
             record = extract(i)
             if record:
                 records.append(record)
-    driver.quit()
 
     filePathComplete = "./CSVFiles/{}.csv".format(item[1])
+    print(records)
 
     with open(filePathComplete, 'a', newline= '', encoding = 'utf-8') as file:
         writer = csv.writer(file)
         if os.stat(filePathComplete).st_size == 0:
             writer.writerow(['Date','Description','Price','Rating','Review Count', 'URL'])
         writer.writerows(records)
+    driver.quit()
+
+def filterCSV(csvFile, keyWord):
+    df1 = pd.read_csv(csvFile,index_col=False)
+    df1 = df1[df1.Description == keyWord]
+    # df1.reset_index(inplace=True, drop=True)
+    # print(df1)
+    df1.to_csv(csvFile, index=False,)
+    # print(pd.read_csv(io.StringIO(df1.to_csv(index=False)),).columns)
 
 
 def main():
@@ -85,10 +96,24 @@ def main():
         if lastDate == time.strftime("%Y-%m-%d"):
             print('already ran this')
             return
+
+    # mark to prevent another run on the same day
     with open(f'{Secrets.TIMESTAMP_FILEPATH}time_stamp.txt', 'w') as f:
         f.write(time.strftime("%Y-%m-%d"))
+
     for search_term in search_terms:
         process_query(search_term)
+
+
+    # filter out rows that aren't the desired products
+    NAS_DESC = 'QNAP TS-230 2-Bay Home NAS Realtek RTD1296 ARM Cortex-A53 Quad-core 1.4 GHz Processor, 2GB DDR4 RAM'
+    AIR_FILTER_DESC = 'LEVOIT Air Purifier Replacement LV-H128-RF 3-in-1 Pre, H13 True HEPA, Activated Carbon, 3-Stage Filtration System, 2 Piece Set, LV-H128 Filter'
+    filterCSV('./CSVFiles/qnap_network_drive.csv', NAS_DESC)
+    filterCSV('./CSVFiles/levoit_air_filters.csv', AIR_FILTER_DESC)
+
+
+
+
 
 # search_term = input('What would you like to search Amazon for? ')
 # main(search_term)
