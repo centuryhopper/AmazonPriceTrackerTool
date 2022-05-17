@@ -67,8 +67,8 @@ def process_query(item):
             if record:
                 records.append(record)
 
-    filePathComplete = "./CSVFiles/{}.csv".format(item[1])
-    print(records)
+    filePathComplete = "{}/CSVFiles/{}.csv".format(Secrets.TIMESTAMP_FILEPATH, item[1])
+    # print(records)
 
     with open(filePathComplete, 'a', newline= '', encoding = 'utf-8') as file:
         writer = csv.writer(file)
@@ -110,8 +110,6 @@ def main():
     AIR_FILTER_DESC = 'LEVOIT Air Purifier Replacement LV-H128-RF 3-in-1 Pre, H13 True HEPA, Activated Carbon, 3-Stage Filtration System, 2 Piece Set, LV-H128 Filter'
     filterCSV('./CSVFiles/qnap_network_drive.csv', NAS_DESC)
     filterCSV('./CSVFiles/levoit_air_filters.csv', AIR_FILTER_DESC)
-
-
 
 
 
