@@ -66,7 +66,7 @@ def process_query(item):
             record = extract(i)
             if record:
                 records.append(record)
-
+    print(f'records: {records}')
     filePathComplete = "{}/CSVFiles/{}.csv".format(Secrets.TIMESTAMP_FILEPATH, item[1])
     # print(records)
 
@@ -85,7 +85,6 @@ def filterCSV(csvFile, keyWord):
     df1.to_csv(csvFile, index=False,)
     # print(pd.read_csv(io.StringIO(df1.to_csv(index=False)),).columns)
 
-
 def main():
     lastDate = ''
     if not os.path.isfile(f'{Secrets.TIMESTAMP_FILEPATH}time_stamp.txt'):
@@ -98,8 +97,8 @@ def main():
             return
 
     # mark to prevent another run on the same day
-    with open(f'{Secrets.TIMESTAMP_FILEPATH}time_stamp.txt', 'w') as f:
-        f.write(time.strftime("%Y-%m-%d"))
+    with open(f'{Secrets.TIMESTAMP_FILEPATH}time_stamp.txt', 'a') as f:
+        f.write(time.strftime("%Y-%m-%d")+'\n')
 
     for search_term in search_terms:
         process_query(search_term)
@@ -110,8 +109,6 @@ def main():
     AIR_FILTER_DESC = 'LEVOIT Air Purifier Replacement LV-H128-RF 3-in-1 Pre, H13 True HEPA, Activated Carbon, 3-Stage Filtration System, 2 Piece Set, LV-H128 Filter'
     filterCSV('./CSVFiles/qnap_network_drive.csv', NAS_DESC)
     filterCSV('./CSVFiles/levoit_air_filters.csv', AIR_FILTER_DESC)
-
-
 
 # search_term = input('What would you like to search Amazon for? ')
 # main(search_term)
