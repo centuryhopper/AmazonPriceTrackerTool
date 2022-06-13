@@ -4,17 +4,14 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from secrets import Secrets
 import pandas as pd
 import os
 import time
 import io
 
 # Set working directory to project file
-path = os.path.dirname(__file__)
-os.chdir(path)
-
-
+os.chdir(os.path.dirname(__file__))
+print(os.getcwd())
 # Define the search function that will locate the desired item
 def search(s):
     general = 'https://www.amazon.com/s?k={}&ref=nb_sb_noss_2'
@@ -22,7 +19,6 @@ def search(s):
     new = general.format(new_search)
     new += '&page={}'
     return new
-
 
 # Create an extraction model that will retrieve the desired product information
 def extract(item):
@@ -67,7 +63,7 @@ def process_query(item):
             if record:
                 records.append(record)
     print(f'records: {records}')
-    filePathComplete = "{}/CSVFiles/{}.csv".format(Secrets.TIMESTAMP_FILEPATH, item[1])
+    filePathComplete = "{}/CSVFiles/{}.csv".format(os.getcwd(), item[1])
     # print(records)
 
     with open(filePathComplete, 'a', newline= '', encoding = 'utf-8') as file:
@@ -87,17 +83,19 @@ def filterCSV(csvFile, keyWord):
 
 def main():
     lastDate = ''
-    if not os.path.isfile(f'{Secrets.TIMESTAMP_FILEPATH}time_stamp.txt'):
-        with open(f'{Secrets.TIMESTAMP_FILEPATH}time_stamp.txt', 'w') as f:
+    if not os.path.isfile(f'{os.getcwd()}/time_stamp.txt'):
+        with open(f'{os.getcwd()}/time_stamp.txt', 'w') as f:
             f.write('')
-    with open(f'{Secrets.TIMESTAMP_FILEPATH}time_stamp.txt', 'r') as f:
+    with open(f'{os.getcwd()}/time_stamp.txt', 'r') as f:
         lastDate = f.read()
+        # print(lastDate, time.strftime("%Y-%m-%d"))
+        # print(lastDate == time.strftime("%Y-%m-%d"))
         if lastDate == time.strftime("%Y-%m-%d"):
             print('already ran this')
             return
 
     # mark to prevent another run on the same day
-    with open(f'{Secrets.TIMESTAMP_FILEPATH}time_stamp.txt', 'a') as f:
+    with open(f'{os.getcwd()}/time_stamp.txt', 'w') as f:
         f.write(time.strftime("%Y-%m-%d")+'\n')
 
     for search_term in search_terms:
