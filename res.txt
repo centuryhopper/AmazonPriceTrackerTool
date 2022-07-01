@@ -1,0 +1,22 @@
+
+
+====== WebDriver manager ======
+
+
+
+
+====== WebDriver manager ======
+====== WebDriver manager ======
+Current google-chrome version is 103.0.5060
+Get LATEST chromedriver version for 103.0.5060 google-chrome
+Current google-chrome version is 103.0.5060
+Current google-chrome version is 103.0.5060
+Get LATEST chromedriver version for 103.0.5060 google-chrome
+Get LATEST chromedriver version for 103.0.5060 google-chrome
+Driver [/home/leo_zhang/.wdm/drivers/chromedriver/linux64/103.0.5060.53/chromedriver] found in cache
+Driver [/home/leo_zhang/.wdm/drivers/chromedriver/linux64/103.0.5060.53/chromedriver] found in cache
+Driver [/home/leo_zhang/.wdm/drivers/chromedriver/linux64/103.0.5060.53/chromedriver] found in cache
+
+real	0m12.662s
+user	0m7.155s
+sys	0m3.109s

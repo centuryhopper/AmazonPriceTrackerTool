@@ -1,3 +1,4 @@
+import concurrent.futures
 import csv
 import os
 import time
@@ -10,7 +11,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
-
+# { time python3 AmazonScraperMultithread.py; } &> res.txt
 ua = None
 while True:
     try:
@@ -125,7 +126,6 @@ def main():
         with open(f'{os.getcwd()}/time_stamp.txt', 'w') as f:
             f.write('')
     with open(f'{os.getcwd()}/time_stamp.txt', 'r') as f:
-        lastDate = f.read()
         # print(lastDate, time.strftime("%Y-%m-%d"))
         # print(lastDate == time.strftime("%Y-%m-%d"))
         if lastDate == time.strftime("%Y-%m-%d"):
@@ -136,25 +136,26 @@ def main():
     with open(f'{os.getcwd()}/time_stamp.txt', 'w') as f:
         f.write(time.strftime("%Y-%m-%d")+'\n')
 
-    for search_term in search_terms:
-        process_query(search_term)
+
+    search_terms = [
+        ("B083W6328Q", 'qnap_network_drive_multithread'),
+        ('B08H8QNW1S', 'levoit_air_filters_multithread'),
+        ("B08V83JZH4", 'samsung_980_1tb_nvme_ssd_multithread')
+    ]
+
+    # for search_term in search_terms:
+    #     process_query(search_term)
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.map(process_query, search_terms)
 
     # filter out rows that aren't the desired products
     NAS_DESC = 'QNAP TS-230 2-Bay Home NAS Realtek RTD1296 ARM Cortex-A53 Quad-core 1.4 GHz Processor, 2GB DDR4 RAM'
     AIR_FILTER_DESC = 'LEVOIT Air Purifier Replacement LV-H128-RF 3-in-1 Pre, H13 True HEPA, Activated Carbon, 3-Stage Filtration System, 2 Piece Set, LV-H128 Filter'
     SAMSUNG_980_EVO = 'SAMSUNG 980 SSD 1TB M.2 NVMe Interface Internal Solid State Drive with V-NAND Technology for Gaming, Heavy Graphics, Full Power Mode, MZ-V8V1T0B/AM'
-    filterCSV(f'{os.getcwd()}/CSVFiles/qnap_network_drive.csv', NAS_DESC)
-    filterCSV(f'{os.getcwd()}/CSVFiles/levoit_air_filters.csv', AIR_FILTER_DESC)
-    filterCSV(f'{os.getcwd()}/CSVFiles/samsung_980_1tb_nvme_ssd.csv', SAMSUNG_980_EVO)
+    filterCSV(f'{os.getcwd()}/CSVFiles/qnap_network_drive_multithread.csv', NAS_DESC)
+    filterCSV(f'{os.getcwd()}/CSVFiles/levoit_air_filters_multithread.csv', AIR_FILTER_DESC)
+    filterCSV(f'{os.getcwd()}/CSVFiles/samsung_980_1tb_nvme_ssd_multithread.csv', SAMSUNG_980_EVO)
 
-# search_term = input('What would you like to search Amazon for? ')
-# main(search_term)
-
-search_terms = [
-    ("B083W6328Q", 'qnap_network_drive'),
-    ('B08H8QNW1S', 'levoit_air_filters'),
-    ("B08V83JZH4", 'samsung_980_1tb_nvme_ssd')
-]
 
 if __name__ == '__main__':
     main()
