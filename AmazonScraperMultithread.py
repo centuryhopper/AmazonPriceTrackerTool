@@ -10,6 +10,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from contextlib import contextmanager
+
 
 # { time python3 AmazonScraperMultithread.py; } &> res.txt
 ua = None
@@ -29,6 +31,40 @@ fake_agent = ua.random
 os.chdir(os.path.dirname(__file__))
 # print(os.getcwd())
 # Define the search function that will locate the desired item
+
+@contextmanager
+def driver(*args, **kwargs):
+    chrome_options = Options()
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--start-maximized')
+    chrome_options.add_argument('--start-fullscreen')
+    chrome_options.add_argument('--single-process')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument("--incognito")
+    chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+    chrome_options.add_experimental_option('useAutomationExtension', False)
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument(f'user-agent={fake_agent}')
+    chrome_options.add_argument('--ignore-ssl-errors=yes')
+    chrome_options.add_argument('--ignore-certificate-errors')
+    chrome_options.add_argument("--disable-infobars")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-popup-blocking")
+
+    d = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options,)
+    d.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+    d.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+        "source":
+            "const newProto = navigator.__proto__;"
+            "delete newProto.webdriver;"
+            "navigator.__proto__ = newProto;"
+    })
+
+    try:
+        yield d
+    finally:
+        d.quit()
 
 def search(s):
     general = 'https://www.amazon.com/s?k={}&ref=nb_sb_noss_2'
@@ -62,55 +98,27 @@ def extract(item):
 # Main program function where the the search and extract functions are used to apply the extraction model to the first 6 pages of amazon.
 # The data extracted is formatted and added to a csv file named after the desired product.
 def process_query(item):
-    chrome_options = Options()
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--start-maximized')
-    chrome_options.add_argument('--start-fullscreen')
-    chrome_options.add_argument('--single-process')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument("--incognito")
-    chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-    chrome_options.add_experimental_option('useAutomationExtension', False)
-    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument(f'user-agent={fake_agent}')
-    chrome_options.add_argument('--ignore-ssl-errors=yes')
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument("--disable-infobars")
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--disable-popup-blocking")
+    with driver() as wd:
+        records = []
+        url = search(item[0])
+        for page in range(1,7):
+            wd.get(url.format(page))
+            soup = BeautifulSoup(wd.page_source, 'html.parser')
+            results = soup.find_all('div',{'data-component-type':"s-search-result"})
 
-    # add the random proxy to firefox_capabilities
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options,)
-    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-    driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-        "source":
-            "const newProto = navigator.__proto__;"
-            "delete newProto.webdriver;"
-            "navigator.__proto__ = newProto;"
-    })
+            for i in results:
+                record = extract(i)
+                if record:
+                    records.append(record)
+        # print(f'records: {records}')
+        filePathComplete = "{}/CSVFiles/{}.csv".format(os.getcwd(), item[1])
+        # print(records)
 
-    records = []
-    url = search(item[0])
-    for page in range(1,7):
-        driver.get(url.format(page))
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
-        results = soup.find_all('div',{'data-component-type':"s-search-result"})
-
-        for i in results:
-            record = extract(i)
-            if record:
-                records.append(record)
-    # print(f'records: {records}')
-    filePathComplete = "{}/CSVFiles/{}.csv".format(os.getcwd(), item[1])
-    # print(records)
-
-    with open(filePathComplete, 'a', newline= '', encoding = 'utf-8') as file:
-        writer = csv.writer(file)
-        if os.stat(filePathComplete).st_size == 0:
-            writer.writerow(['Date','Description','Price','Rating','Review Count', 'URL'])
-        writer.writerows(records)
-    driver.quit()
+        with open(filePathComplete, 'a', newline= '', encoding = 'utf-8') as file:
+            writer = csv.writer(file)
+            if os.stat(filePathComplete).st_size == 0:
+                writer.writerow(['Date','Description','Price','Rating','Review Count', 'URL'])
+            writer.writerows(records)
 
 def filterCSV(csvFile, keyWord):
     df1 = pd.read_csv(csvFile,index_col=False)
@@ -136,25 +144,26 @@ def main():
     with open(f'{os.getcwd()}/time_stamp.txt', 'w') as f:
         f.write(time.strftime("%Y-%m-%d")+'\n')
 
-
     search_terms = [
         ("B083W6328Q", 'qnap_network_drive_multithread'),
         ('B08H8QNW1S', 'levoit_air_filters_multithread'),
-        ("B08V83JZH4", 'samsung_980_1tb_nvme_ssd_multithread')
+        ("B08V83JZH4", 'samsung_980_1tb_nvme_ssd_multithread'),
+        ("B08GLX7TNT", "samsung_980_pro_1tb_nvme_ssd_multithread"),
     ]
-
-    # for search_term in search_terms:
-    #     process_query(search_term)
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.map(process_query, search_terms)
 
     # filter out rows that aren't the desired products
     NAS_DESC = 'QNAP TS-230 2-Bay Home NAS Realtek RTD1296 ARM Cortex-A53 Quad-core 1.4 GHz Processor, 2GB DDR4 RAM'
     AIR_FILTER_DESC = 'LEVOIT Air Purifier Replacement LV-H128-RF 3-in-1 Pre, H13 True HEPA, Activated Carbon, 3-Stage Filtration System, 2 Piece Set, LV-H128 Filter'
     SAMSUNG_980_EVO = 'SAMSUNG 980 SSD 1TB M.2 NVMe Interface Internal Solid State Drive with V-NAND Technology for Gaming, Heavy Graphics, Full Power Mode, MZ-V8V1T0B/AM'
+    SAMSUNG_980_PRO_EVO = 'SAMSUNG 980 PRO SSD 1TB PCIe 4.0 NVMe Gen 4 Gaming M.2 Internal Solid State Hard Drive Memory Card, Maximum Speed, Thermal Control, MZ-V8P1T0B'
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.map(process_query, search_terms)
+
     filterCSV(f'{os.getcwd()}/CSVFiles/qnap_network_drive_multithread.csv', NAS_DESC)
     filterCSV(f'{os.getcwd()}/CSVFiles/levoit_air_filters_multithread.csv', AIR_FILTER_DESC)
     filterCSV(f'{os.getcwd()}/CSVFiles/samsung_980_1tb_nvme_ssd_multithread.csv', SAMSUNG_980_EVO)
+    filterCSV(f'{os.getcwd()}/CSVFiles/samsung_980_pro_1tb_nvme_ssd_multithread.csv', SAMSUNG_980_PRO_EVO)
 
 
 if __name__ == '__main__':
