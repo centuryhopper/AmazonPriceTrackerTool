@@ -134,15 +134,20 @@ def main():
         with open(f'{os.getcwd()}/time_stamp.txt', 'w') as f:
             f.write('')
     with open(f'{os.getcwd()}/time_stamp.txt', 'r') as f:
-        # print(lastDate, time.strftime("%Y-%m-%d"))
-        # print(lastDate == time.strftime("%Y-%m-%d"))
-        if lastDate == time.strftime("%Y-%m-%d"):
-            print('already ran this')
+        # print(lastDate.strip())
+        # print(time.strftime("%Y-%m-%d"))
+        # print(lastDate.strip() == time.strftime("%Y-%m-%d"))
+        lastDate = f.read()
+        #? be CAREFUL of new lines in the time_stamp file. They will stop this function from terminating early here
+        if lastDate.strip() == time.strftime("%Y-%m-%d"):
+            print(f'{__file__}: already ran this')
             return
 
     # mark to prevent another run on the same day
     with open(f'{os.getcwd()}/time_stamp.txt', 'w') as f:
-        f.write(time.strftime("%Y-%m-%d")+'\n')
+        f.write(time.strftime("%Y-%m-%d"))
+
+    print('here')
 
     search_terms = [
         ("B083W6328Q", 'qnap_network_drive_multithread'),
@@ -151,14 +156,15 @@ def main():
         ("B08GLX7TNT", "samsung_980_pro_1tb_nvme_ssd_multithread"),
     ]
 
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.map(process_query, search_terms)
+
     # filter out rows that aren't the desired products
     NAS_DESC = 'QNAP TS-230 2-Bay Home NAS Realtek RTD1296 ARM Cortex-A53 Quad-core 1.4 GHz Processor, 2GB DDR4 RAM'
     AIR_FILTER_DESC = 'LEVOIT Air Purifier Replacement LV-H128-RF 3-in-1 Pre, H13 True HEPA, Activated Carbon, 3-Stage Filtration System, 2 Piece Set, LV-H128 Filter'
     SAMSUNG_980_EVO = 'SAMSUNG 980 SSD 1TB M.2 NVMe Interface Internal Solid State Drive with V-NAND Technology for Gaming, Heavy Graphics, Full Power Mode, MZ-V8V1T0B/AM'
     SAMSUNG_980_PRO_EVO = 'SAMSUNG 980 PRO SSD 1TB PCIe 4.0 NVMe Gen 4 Gaming M.2 Internal Solid State Hard Drive Memory Card, Maximum Speed, Thermal Control, MZ-V8P1T0B'
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.map(process_query, search_terms)
 
     filterCSV(f'{os.getcwd()}/CSVFiles/qnap_network_drive_multithread.csv', NAS_DESC)
     filterCSV(f'{os.getcwd()}/CSVFiles/levoit_air_filters_multithread.csv', AIR_FILTER_DESC)
