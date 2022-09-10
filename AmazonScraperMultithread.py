@@ -11,7 +11,9 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from contextlib import contextmanager
-
+import sys
+sys.path.append('/home/leo_zhang/Documents/GitHub/automate_texting/')
+from automate_texting import send_message
 
 # { time python3 AmazonScraperMultithread.py; } &> res.txt
 ua = None
@@ -170,6 +172,7 @@ def main():
     filterCSV(f'{os.getcwd()}/CSVFiles/levoit_air_filters_multithread.csv', AIR_FILTER_DESC)
     filterCSV(f'{os.getcwd()}/CSVFiles/samsung_980_1tb_nvme_ssd_multithread.csv', SAMSUNG_980_EVO)
     filterCSV(f'{os.getcwd()}/CSVFiles/samsung_980_pro_1tb_nvme_ssd_multithread.csv', SAMSUNG_980_PRO_EVO)
+    send_message(f'finished collecting amazon product data for today: {time.strftime("%Y-%m-%d")}')
 
 
 if __name__ == '__main__':
