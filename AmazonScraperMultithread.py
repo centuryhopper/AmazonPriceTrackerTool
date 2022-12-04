@@ -1,67 +1,42 @@
 import concurrent.futures
 import csv
 import os
+from pathlib import Path
 import time
 
 import pandas as pd
 from bs4 import BeautifulSoup
-from fake_useragent import FakeUserAgentError, UserAgent
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
+from webdriver_manager.firefox import GeckoDriverManager
 from contextlib import contextmanager
 import sys
 sys.path.append('/home/leo_zhang/Documents/GitHub/automate_texting/')
 from automate_texting import send_message
 
 # { time python3 AmazonScraperMultithread.py; } &> res.txt
-ua = None
-while True:
-    try:
-        ua = UserAgent()
-        break
-    except FakeUserAgentError:
-        print('fake user agent error')
-        continue
-    except Exception:
-        continue
-
-fake_agent = ua.random
 
 # Set working directory to project file
 os.chdir(os.path.dirname(__file__))
-# print(os.getcwd())
 # Define the search function that will locate the desired item
+
+log_path_file_name = f'{time.strftime("%Y-%m-%d")}_Amazon_scraper.log'
+
 
 @contextmanager
 def driver(*args, **kwargs):
-    chrome_options = Options()
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--start-maximized')
-    chrome_options.add_argument('--start-fullscreen')
-    chrome_options.add_argument('--single-process')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument("--incognito")
-    chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-    chrome_options.add_experimental_option('useAutomationExtension', False)
-    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument(f'user-agent={fake_agent}')
-    chrome_options.add_argument('--ignore-ssl-errors=yes')
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument("--disable-infobars")
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--disable-popup-blocking")
+    firefox_options = Options()
+    firefox_options.add_argument('--no-sandbox')
+    firefox_options.add_argument('--disable-blink-features=AutomationControlled')
+    firefox_options.add_argument('--ignore-ssl-errors=yes')
+    firefox_options.add_argument('--ignore-certificate-errors')
+    firefox_options.add_argument("--disable-infobars")
+    firefox_options.add_argument("--disable-extensions")
+    firefox_options.add_argument("--disable-popup-blocking")
+    firefox_options.add_argument("--headless")
 
-    d = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options,)
-    d.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-    d.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-        "source":
-            "const newProto = navigator.__proto__;"
-            "delete newProto.webdriver;"
-            "navigator.__proto__ = newProto;"
-    })
+    d = webdriver.Firefox(service=Service(GeckoDriverManager().install(), log_path=f'/tmp/{log_path_file_name}'), options=firefox_options,)
 
     try:
         yield d
@@ -112,9 +87,9 @@ def process_query(item):
                 record = extract(i)
                 if record:
                     records.append(record)
+
         # print(f'records: {records}')
         filePathComplete = "{}/CSVFiles/{}.csv".format(os.getcwd(), item[1])
-        # print(records)
 
         with open(filePathComplete, 'a', newline= '', encoding = 'utf-8') as file:
             writer = csv.writer(file)
@@ -149,29 +124,24 @@ def main():
     with open(f'{os.getcwd()}/time_stamp.txt', 'w') as f:
         f.write(time.strftime("%Y-%m-%d"))
 
-    print('here')
+    FILENAMES = ['levoit_air_filters_multithread', 'ryzen_7_3700x_multithread']
+
+    Path(f'{Path.cwd()}/CSVFiles').mkdir(parents=True, exist_ok=True)
 
     search_terms = [
-        ("B083W6328Q", 'qnap_network_drive_multithread'),
-        ('B08H8QNW1S', 'levoit_air_filters_multithread'),
-        ("B08V83JZH4", 'samsung_980_1tb_nvme_ssd_multithread'),
-        ("B08GLX7TNT", "samsung_980_pro_1tb_nvme_ssd_multithread"),
+        ('B08H8QNW1S', FILENAMES[0]),
+        ("B07SXMZLPK", FILENAMES[1]),
     ]
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.map(process_query, search_terms)
 
     # filter out rows that aren't the desired products
-    NAS_DESC = 'QNAP TS-230 2-Bay Home NAS Realtek RTD1296 ARM Cortex-A53 Quad-core 1.4 GHz Processor, 2GB DDR4 RAM'
-    AIR_FILTER_DESC = 'LEVOIT Air Purifier Replacement LV-H128-RF 3-in-1 Pre, H13 True HEPA, Activated Carbon, 3-Stage Filtration System, 2 Piece Set, LV-H128 Filter'
-    SAMSUNG_980_EVO = 'SAMSUNG 980 SSD 1TB M.2 NVMe Interface Internal Solid State Drive with V-NAND Technology for Gaming, Heavy Graphics, Full Power Mode, MZ-V8V1T0B/AM'
-    SAMSUNG_980_PRO_EVO = 'SAMSUNG 980 PRO SSD 1TB PCIe 4.0 NVMe Gen 4 Gaming M.2 Internal Solid State Hard Drive Memory Card, Maximum Speed, Thermal Control, MZ-V8P1T0B'
+    RYZEN_CPU = 'AMD Ryzen 7 3700X 8-Core, 16-Thread Unlocked Desktop Processor with Wraith Prism LED Cooler'
+    AIR_FILTER_DESC = 'LEVOIT LV-H128 Air Purifier Replacement, 3-in-1 Pre-Filter, H13 True HEPA, Activated Carbon, 3-Stage Filtration System, 2 Piece Set, LV-H128-RF, 1 Pack'
 
-
-    filterCSV(f'{os.getcwd()}/CSVFiles/qnap_network_drive_multithread.csv', NAS_DESC)
-    filterCSV(f'{os.getcwd()}/CSVFiles/levoit_air_filters_multithread.csv', AIR_FILTER_DESC)
-    filterCSV(f'{os.getcwd()}/CSVFiles/samsung_980_1tb_nvme_ssd_multithread.csv', SAMSUNG_980_EVO)
-    filterCSV(f'{os.getcwd()}/CSVFiles/samsung_980_pro_1tb_nvme_ssd_multithread.csv', SAMSUNG_980_PRO_EVO)
+    filterCSV(f'{os.getcwd()}/CSVFiles/{FILENAMES[0]}.csv', AIR_FILTER_DESC)
+    filterCSV(f'{os.getcwd()}/CSVFiles/{FILENAMES[1]}.csv', RYZEN_CPU)
     send_message(f'finished collecting amazon product data for today: {time.strftime("%Y-%m-%d")}')
 
 
