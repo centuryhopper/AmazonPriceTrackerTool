@@ -1,3 +1,10 @@
+import platform
+
+if platform.system() == "Linux":
+    import linux_tools as tools
+elif platform.system() == "Windows":
+    import windows_tools as tools
+
 import concurrent.futures
 import csv
 import os
@@ -12,7 +19,7 @@ from selenium.webdriver.firefox.service import Service
 from webdriver_manager.firefox import GeckoDriverManager
 from contextlib import contextmanager
 import sys
-sys.path.append('/home/leo_zhang/Documents/GitHub/automate_texting/')
+sys.path.append(tools.AUTOMATE_TEXTING_PATH)
 from automate_texting import send_message
 
 # { time python3 AmazonScraperMultithread.py; } &> res.txt
@@ -36,7 +43,7 @@ def driver(*args, **kwargs):
     firefox_options.add_argument("--disable-popup-blocking")
     firefox_options.add_argument("--headless")
 
-    d = webdriver.Firefox(service=Service(GeckoDriverManager().install(), log_path=f'/tmp/{log_path_file_name}'), options=firefox_options,)
+    d = webdriver.Firefox(service=Service(GeckoDriverManager().install(), log_path=f'{tools.LOG_PATH}{log_path_file_name}'), options=firefox_options,)
 
     try:
         yield d
