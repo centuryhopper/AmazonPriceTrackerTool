@@ -34,7 +34,8 @@ log_path_file_name = f'{time.strftime("%Y-%m-%d")}_Amazon_scraper.log'
 @contextmanager
 def driver(*args, **kwargs):
     firefox_options = Options()
-    firefox_options.add_argument('--no-sandbox')
+    # commented this line out because it doesn't work on windows
+    # firefox_options.add_argument('--no-sandbox')
     firefox_options.add_argument('--disable-blink-features=AutomationControlled')
     firefox_options.add_argument('--ignore-ssl-errors=yes')
     firefox_options.add_argument('--ignore-certificate-errors')
@@ -89,12 +90,10 @@ def process_query(item):
             wd.get(url.format(page))
             soup = BeautifulSoup(wd.page_source, 'html.parser')
             results = soup.find_all('div',{'data-component-type':"s-search-result"})
-
             for i in results:
                 record = extract(i)
                 if record:
                     records.append(record)
-
         # print(f'records: {records}')
         filePathComplete = "{}/CSVFiles/{}.csv".format(os.getcwd(), item[1])
 
