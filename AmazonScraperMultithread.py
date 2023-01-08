@@ -19,8 +19,9 @@ from selenium.webdriver.firefox.service import Service
 from webdriver_manager.firefox import GeckoDriverManager
 from contextlib import contextmanager
 import sys
-sys.path.append(tools.AUTOMATE_TEXTING_PATH)
-from automate_texting import send_message
+sys.path.append(tools.AUTOMATE_EMAIL_PATH)
+from EmailingTool import EmailTool
+
 
 # { time python3 AmazonScraperMultithread.py; } &> res.txt
 
@@ -148,7 +149,10 @@ def main():
 
     filterCSV(f'{os.getcwd()}/CSVFiles/{FILENAMES[0]}.csv', AIR_FILTER_DESC)
     filterCSV(f'{os.getcwd()}/CSVFiles/{FILENAMES[1]}.csv', RYZEN_CPU)
-    send_message(f'finished collecting amazon product data for today: {time.strftime("%Y-%m-%d")}')
+
+    EmailTool.sendEmail('','', ['leozhang12345678@gmail.com'], 'Amazon_Results', f'finished collecting amazon product data for today: {time.strftime("%Y-%m-%d")}')
+
+
 
 
 if __name__ == '__main__':
