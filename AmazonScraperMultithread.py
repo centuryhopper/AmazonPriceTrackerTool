@@ -123,7 +123,7 @@ def main():
         # print(lastDate.strip() == time.strftime("%Y-%m-%d"))
         lastDate = f.read()
         #? be CAREFUL of new lines in the time_stamp file. They will stop this function from terminating early here
-        if lastDate.strip() == time.strftime("%Y-%m-%d"):
+        if lastDate.strip() == time.strftime("%Y-%m-%d") and tools.IS_CONNECTED_TO_NETWORK:
             print(f'{__file__}: already ran this')
             return
 
